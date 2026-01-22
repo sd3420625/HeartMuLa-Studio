@@ -9,6 +9,12 @@
 </p>
 
 <p align="center">
+  <a href="https://www.youtube.com/watch?v=W7-JB-Pl8So">
+    <img src="https://img.shields.io/badge/▶_Watch_Demo-YouTube-FF0000?style=for-the-badge&logo=youtube" alt="Watch Demo on YouTube">
+  </a>
+</p>
+
+<p align="center">
   <a href="#features">Features</a> •
   <a href="#demo">Demo</a> •
   <a href="#installation">Installation</a> •
@@ -101,17 +107,15 @@ cd HeartMuLa-Studio
 ### 2. Backend Setup
 
 ```bash
-cd backend
-
-# Create virtual environment
+# Create virtual environment in root folder
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install backend dependencies
+pip install -r backend/requirements.txt
 ```
 
-> **Note:** HeartLib models (~5GB) will be downloaded automatically on first run.
+> **Note:** HeartLib models (~5GB) will be downloaded automatically from HuggingFace on first run.
 
 ### 3. Frontend Setup
 
@@ -130,9 +134,13 @@ npm run build
 ### Start the Backend
 
 ```bash
-cd backend
 source venv/bin/activate  # Windows: venv\Scripts\activate
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# Single GPU
+python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+
+# Multi-GPU (recommended for 2+ GPUs)
+CUDA_VISIBLE_DEVICES=0,1 python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### Start the Frontend
@@ -172,10 +180,19 @@ OLLAMA_HOST=http://localhost:11434
 
 ### GPU Configuration
 
-HeartMuLa Studio automatically detects available GPUs. For multi-GPU setups:
+HeartMuLa Studio automatically detects available GPUs and distributes the model:
 
-- **Single GPU:** Works out of the box
-- **Multi-GPU:** The backend distributes model components across GPUs
+| Setup | Configuration |
+|-------|---------------|
+| **Single GPU (24GB+)** | Works out of the box with lazy loading |
+| **Multi-GPU** | HeartMuLa on larger GPU, HeartCodec on smaller GPU |
+
+For multi-GPU, set `CUDA_VISIBLE_DEVICES=0,1` when starting the backend. The backend will automatically place HeartMuLa (~10GB) on the larger GPU and HeartCodec (~6GB) on the smaller one.
+
+For better memory management, add:
+```bash
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+```
 
 ### LLM Setup (Optional)
 
@@ -241,10 +258,11 @@ HeartMuLa-Studio/
 
 | Issue | Solution |
 |-------|----------|
-| CUDA out of memory | Reduce duration or use a GPU with more VRAM |
+| CUDA out of memory | Use multi-GPU setup with `CUDA_VISIBLE_DEVICES=0,1` or reduce duration |
 | Models not downloading | Check internet connection and disk space (~5GB needed) |
 | Frontend can't connect | Ensure backend is running on port 8000 |
-| LLM not working | Check Ollama is running or OpenRouter API key is set |
+| LLM not working | Check Ollama is running or OpenRouter API key is set in `backend/.env` |
+| Only one GPU detected | Set `CUDA_VISIBLE_DEVICES=0,1` explicitly when starting backend |
 
 ## Credits
 
