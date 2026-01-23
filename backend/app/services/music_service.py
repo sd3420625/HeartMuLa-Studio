@@ -258,12 +258,12 @@ class MusicService:
             gpu_info[i] = {"mem": mem, "compute": compute_cap, "name": props.name}
             logger.info(f"  GPU {i}: {props.name} ({mem:.1f} GB, SM {props.major}.{props.minor})")
 
-        # Prioritize compute capability for HeartMuLa (faster inference with Flash Attention)
-        # Put HeartMuLa on fastest GPU, HeartCodec on the other
-        mula_gpu = max(gpu_info, key=lambda x: gpu_info[x]["compute"])
-        codec_gpu = min(gpu_info, key=lambda x: gpu_info[x]["compute"])
+        # Put HeartMuLa on GPU with most VRAM (needs ~11GB for 3B model)
+        # HeartCodec goes on the other GPU
+        mula_gpu = max(gpu_info, key=lambda x: gpu_info[x]["mem"])
+        codec_gpu = min(gpu_info, key=lambda x: gpu_info[x]["mem"])
 
-        print(f"[GPU Setup] HeartMuLa -> GPU {mula_gpu}: {gpu_info[mula_gpu]['name']} ({gpu_info[mula_gpu]['mem']:.1f} GB, SM {gpu_info[mula_gpu]['compute']})", flush=True)
+        print(f"[GPU Setup] HeartMuLa -> GPU {mula_gpu}: {gpu_info[mula_gpu]['name']} ({gpu_info[mula_gpu]['mem']:.1f} GB)", flush=True)
         print(f"[GPU Setup] HeartCodec -> GPU {codec_gpu}: {gpu_info[codec_gpu]['name']} ({gpu_info[codec_gpu]['mem']:.1f} GB)", flush=True)
 
         # Configure Flash Attention based on the GPU running HeartMuLa
