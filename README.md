@@ -156,7 +156,7 @@ Open **http://localhost:8000**
 # Create directories for persistent data
 mkdir -p backend/models backend/generated_audio backend/ref_audio
 
-# Run the pre-built image
+# Run the pre-built image (Docker Hub)
 docker run -d \
   --gpus all \
   -p 8000:8000 \
@@ -164,8 +164,12 @@ docker run -d \
   -v ./backend/generated_audio:/app/backend/generated_audio \
   -v ./backend/ref_audio:/app/backend/ref_audio \
   --name heartmula-studio \
-  ghcr.io/fspecii/heartmula-studio:latest
+  ambsd/heartmula-studio:latest
 ```
+
+**Available registries:**
+- Docker Hub: `ambsd/heartmula-studio:latest`
+- GitHub: `ghcr.io/fspecii/heartmula-studio:latest`
 
 ### What Happens on First Run
 
